@@ -93,6 +93,9 @@ def _report_character_sheets():
 def main() -> int:
     """Main hook function. Returns exit code."""
     try:
+        # Read SessionStart input (may be empty object)
+        input_data = json.load(sys.stdin)
+
         # Load session state with recovery
         session, was_recovered = read_state_with_recovery('session.json')
 
@@ -132,6 +135,9 @@ def main() -> int:
 
         return 0
 
+    except json.JSONDecodeError:
+        # No input - just exit cleanly
+        return 0
     except Exception as e:
         print(f"Auto-resume hook error: {e}", file=sys.stderr)
         return 0
