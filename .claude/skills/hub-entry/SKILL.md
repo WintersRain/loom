@@ -31,7 +31,13 @@ result = route_input(user_input)
 
 ### 2. Handle by Mode
 
-**If result.mode == 'book':**
+**If result.mode == 'book' and result.project_name is None:**
+- No project yet - user wants to CREATE a new book
+- Route to **new-book** skill (`/new-book`)
+- Gather title, genre through conversation
+- Create project scaffolding, then begin writing
+
+**If result.mode == 'book' and result.project_name is set:**
 - Project identified: follow continue-project skill
 - Run continue_project.py with result.project_name
 - Read project files, resume context
@@ -252,6 +258,7 @@ result = route_input("shy librarian trapped...")
 
 ## Related Skills
 
+- **new-book** - Create a new book project with scaffolding
 - **quick-session** - Conversational flow for starting casual sessions
 - **continue-project** - Resume context loading for book projects
 - **list-sessions** - Browse and search past sessions

@@ -74,6 +74,7 @@ PROJECT_NAMES = _load_project_names()
 
 # Routing patterns
 BOOK_KEYWORDS = ['continue', 'resume', 'back to', 'work on', 'return to']
+NEW_BOOK_KEYWORDS = ['start a book', 'new book', 'write a book', 'book project', 'start a novel', 'new novel', 'write a novel']
 SESSION_KEYWORDS = ['quick session', 'new session', 'tonight', 'something ']
 CHAPTER_PATTERN = re.compile(r'\b(?:chapter|ch\.?|scene)\s*(\d+)', re.IGNORECASE)
 
@@ -117,6 +118,17 @@ def route_input(user_input: str) -> RoutingResult:
     for kw in BOOK_KEYWORDS:
         if kw in input_lower:
             return _route_book_from_keyword(user_input, input_lower, kw)
+
+    # Tier 1a: New book project keywords
+    for kw in NEW_BOOK_KEYWORDS:
+        if kw in input_lower:
+            return RoutingResult(
+                mode='book',
+                confidence=0.9,
+                project_name=None,  # No project yet - needs creation
+                match_tier=1,
+                reasoning=f"Matched new book keyword '{kw}'"
+            )
 
     # Tier 1b: Explicit session keywords
     for kw in SESSION_KEYWORDS:
@@ -389,11 +401,12 @@ def _generate_project_list_clarification(context: str) -> dict:
 if __name__ == '__main__':
     # Test the router
     test_inputs = [
-        "continue halcyon chapter 4",
+        "continue my-novel chapter 4",
         "vampire romance tonight",
         "something dark and obsessive",
         "continue",
-        "back to my novel",
+        "start a new book",
+        "write a novel",
         "cunning thief",
         "dark romance",
         "",

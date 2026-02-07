@@ -22,6 +22,65 @@ hooks_dir = Path(__file__).resolve().parent
 sys.path.insert(0, str(hooks_dir))
 
 from project_state import read_project_state, write_project_state
+from state_manager import BOOKS_DIR
+
+
+def create_book_project(project_name: str, working_title: str, genre: str = "uncategorized") -> Path:
+    """
+    Create a new book project with full scaffolding.
+
+    Args:
+        project_name: Kebab-case directory name
+        working_title: Human-readable title
+        genre: Genre classification
+
+    Returns:
+        Path to the created project directory
+    """
+    project_path = BOOKS_DIR / project_name
+
+    # Create directory structure
+    (project_path / '.state').mkdir(parents=True, exist_ok=True)
+    (project_path / 'CHARACTERS').mkdir(exist_ok=True)
+    (project_path / 'SCENES').mkdir(exist_ok=True)
+
+    # Initialize project state
+    state = {
+        'project_name': project_name,
+        'working_title': working_title,
+        'genre': genre,
+        'status': 'worldbuilding',
+        'created': datetime.now().isoformat(),
+        'last_edited': datetime.now().isoformat(),
+        'total_sessions': 0,
+        'last_position': None,
+        'open_threads': [],
+        'character_focus': [],
+        'current_arc': None,
+        'session_history': []
+    }
+
+    write_project_state(project_path, state)
+
+    # Create empty world.md
+    world_file = project_path / 'world.md'
+    if not world_file.exists():
+        world_file.write_text(
+            f'# {working_title} - Worldbuilding\n\n',
+            encoding='utf-8'
+        )
+
+    # Create project CLAUDE.md
+    claude_file = project_path / 'CLAUDE.md'
+    if not claude_file.exists():
+        claude_file.write_text(
+            f'# {working_title} - Project Instructions\n\n'
+            f'## Status\nNew project. Worldbuilding phase.\n\n'
+            f'## Genre\n{genre}\n',
+            encoding='utf-8'
+        )
+
+    return project_path
 
 
 def generate_thread_id(description: str) -> str:
