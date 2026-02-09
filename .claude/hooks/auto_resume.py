@@ -128,7 +128,17 @@ def main() -> int:
             # No active project but we recovered - note it
             print("Session state recovered from backup. No active project.")
 
-        # If no active project and no recovery, output nothing (fresh start)
+        # If no active project and no recovery, check for first-time setup
+        if not session.get('active_project') and not was_recovered:
+            try:
+                from config import MC_NAME
+                if MC_NAME == "MC":
+                    print("FIRST TIME SETUP: The user has not configured their character name yet.")
+                    print("Ask them: \"What name do you want to use for your main character?\"")
+                    print("Then tell them to edit .claude/hooks/config.py and set MC_NAME to their chosen name.")
+                    print("Also ask about CHARACTER_POV (who Claude writes as, e.g. 'the NPCs', 'Elena').")
+            except ImportError:
+                pass
 
         # Detect character sheets in current context
         _report_character_sheets()
